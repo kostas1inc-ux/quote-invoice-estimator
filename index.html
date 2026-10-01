@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <title>Ελεύθερος Επαγγελματίας - Υπολογιστής Προσφοράς/Τιμολογίου</title>
+  <meta name="description" content="Υπολογίστε γρήγορα προσφορές και εκτιμήσεις τιμολογίων για τις υπηρεσίες σας στην Ελλάδα. Υποστηρίζει πολλαπλές γραμμές, ΦΠΑ και εκτυπώσιμη σύνοψη.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #333333;
+      --accent: #0056b3;
+      --accent-hover: #003d80;
+      --border: #cccccc;
+      --input-bg: #f9f9f9;
+      --danger: #d93025;
+      --danger-hover: #b52a1f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1rem;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin: 0.5rem 0;
+      color: var(--accent);
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: #666;
+    }
+    .instructions {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: #555;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+    input[type="text"] {
+      padding: 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--input-bg);
+      font-size: 1rem;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .results {
+      background: #eef5ff;
+      border: 1px solid #d0e3f0;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      font-size: 1rem;
+    }
+    .result-row:not(:last-child) {
+      border-bottom: 1px solid #d0e3f0;
+    }
+    .result-label {
+      font-weight: 600;
+    }
+    .result-value {
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    button {
+      flex: 1 1 auto;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #reset-btn {
+      background: #e0e0e0;
+      color: #333;
+    }
+    #reset-btn:hover {
+      background: #c5c5c5;
+    }
+    #print-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+    #print-btn:hover {
+      background: var(--accent-hover);
+    }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 2rem;
+    }
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Ελεύθερος Επαγγελματίας – Υπολογιστής Προσφοράς/Τιμολογίου</h1>
+      <div class="subtitle">A practical tool for Greek small businesses</div>
+    </header>
+
+    <div class="instructions">Συμπληρώστε τις ποσότητες και τις μονάδες τιμών για κάθε γραμμή και επιλέξτε τον συντελεστή ΦΠΑ.</div>
+
+    <div class="form-grid">
+      <!-- Line 1 -->
+      <div class="form-group">
+        <label for="line1-qty">Ποσότητα 1</label>
+        <input type="text" id="line1-qty" inputmode="decimal" placeholder="π.χ. 2">
+      </div>
+      <div class="form-group">
+        <label for="line1-price">Τιμή μονάδας 1 (€)</label>
+        <input type="text" id="line1-price" inputmode="decimal" placeholder="π.χ. 50,00">
+      </div>
+
+      <!-- Line 2 -->
+      <div class="form-group">
+        <label for="line2-qty">Ποσότητα 2</label>
+        <input type="text" id="line2-qty" inputmode="decimal" placeholder="π.χ. 1">
+      </div>
+      <div class="form-group">
+        <label for="line2-price">Τιμή μονάδας 2 (€)</label>
+        <input type="text" id="line2-price" inputmode="decimal" placeholder="π.χ. 30,50">
+      </div>
+
+      <!-- Line 3 -->
+      <div class="form-group">
+        <label for="line3-qty">Ποσότητα 3</label>
+        <input type="text" id="line3-qty" inputmode="decimal" placeholder="π.χ. 10">
+      </div>
+      <div class="form-group">
+        <label for="line3-price">Τιμή μονάδας 3 (€)</label>
+        <input type="text" id="line3-price" inputmode="decimal" placeholder="π.χ. 5,75">
+      </div>
+
+      <!-- VAT Rate -->
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label for="quote-vat-rate">Συντελεστής ΦΠΑ (%)</label>
+        <select id="quote-vat-rate">
+          <option value="24">24%</option>
+          <option value="13">13%</option>
+          <option value="6">6%</option>
+          <option value="0">0%</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="result-row">
+        <span class="result-label">Υποσύνολο:</span>
+        <span class="result-value" id="quote-subtotal">0,00 €</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">ΦΠΑ (%):</span>
+        <span class="result-value" id="quote-vat">0,00 €</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Σύνολο:</span>
+        <span class="result-value" id="quote-total">0,00 €</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="reset-btn">Επαναφορά</button>
+      <button id="print-btn">Εκτύπωση</button>
+    </div>
+
+    <footer>
+      Οι τιμές είναι ενδεικτικές και δεν αποτελούν φορολογική ή νομική συμβουλή.
+    </footer>
+  </div>
+
+  <script>
+    // Helper: format number to Greek format with € suffix
+    function fmt(num) {
+      if (num === null || num === undefined || isNaN(num)) return "0,00 €";
+      const n = Number(num);
+      const fixed = n.toFixed(2);
+      const [int, dec] = fixed.split('.');
+      const intFormatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      return `${intFormatted},${dec} €`;
+    }
+
+    // Parse input string to number, handling dot/comma thousands/decimal
+    function parseInput(val) {
+      if (val === null || val === undefined || val === '') return 0;
+      let s = val.toString().trim().replace(/\s/g, '');
+      if (s === '') return 0;
+      // Determine decimal separator: if both '.' and ',' present, last one is decimal
+      const dotIdx = s.lastIndexOf('.');
+      const commaIdx = s.lastIndexOf(',');
+      let decSep;
+      if (dotIdx > -1 && commaIdx > -1) {
+        decSep = (dotIdx > commaIdx) ? '.' : ',';
+      } else if (dotIdx > -1) {
+        decSep = '.';
+      } else if (commaIdx > -1) {
+        decSep = ',';
+      } else {
+        decSep = null;
+      }
+
+      if (decSep) {
+        // Remove thousands separators (the other separator)
+        const thousandsSep = decSep === '.' ? ',' : '.';
+        s = s.replace(new RegExp(`\\${thousandsSep}`, 'g'), '');
+        s = s.replace(decSep, '.');
+      }
+      const parsed = parseFloat(s);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+
+    // Get input elements
+    const line1Qty = document.getElementById('line1-qty');
+    const line1Price = document.getElementById('line1-price');
+    const line2Qty = document.getElementById('line2-qty');
+    const line2Price = document.getElementById('line2-price');
+    const line3Qty = document.getElementById('line3-qty');
+    const line3Price = document.getElementById('line3-price');
+    const vatSelect = document.getElementById('quote-vat-rate');
+    const subtotalEl = document.getElementById('quote-subtotal');
+    const vatEl = document.getElementById('quote-vat');
+    const totalEl = document.getElementById('quote-total');
+    const resetBtn = document.getElementById('reset-btn');
+    const printBtn = document.getElementById('print-btn');
+
+    // Load saved state from localStorage
+    function loadState() {
+      const saved = localStorage.getItem('freelancerQuoteState');
+      if (!saved) return;
+      try {
+        const obj = JSON.parse(saved);
+        line1Qty.value = obj.line1Qty ?? '';
+        line1Price.value = obj.line1Price ?? '';
+        line2Qty.value = obj.line2Qty ?? '';
+        line2Price.value = obj.line2Price ?? '';
+        line3Qty.value = obj.line3Qty ?? '';
+        line3Price.value = obj.line3Price ?? '';
+        vatSelect.value = obj.vatRate ?? '24';
+      } catch (_) {}
+    }
+
+    // Save state to localStorage
+    function saveState() {
+      const state = {
+        line1Qty: line1Qty.value,
+        line1Price: line1Price.value,
+        line2Qty: line2Qty.value,
+        line2Price: line2Price.value,
+        line3Qty: line3Qty.value,
+        line3Price: line3Price.value,
+        vatRate: vatSelect.value
+      };
+      localStorage.setItem('freelancerQuoteState', JSON.stringify(state));
+    }
+
+    // Compute totals
+    function compute() {
+      const l1Qty = parseInput(line1Qty.value);
+      const l1Price = parseInput(line1Price.value);
+      const l2Qty = parseInput(line2Qty.value);
+      const l2Price = parseInput(line2Price.value);
+      const l3Qty = parseInput(line3Qty.value);
+      const l3Price = parseInput(line3Price.value);
+
+      const subtotal = l1Qty * l1Price + l2Qty * l2Price + l3Qty * l3Price;
+      const vatRate = parseFloat(vatSelect.value) || 0;
+      const vatAmount = subtotal * (vatRate / 100);
+      const total = subtotal + vatAmount;
+
+      subtotalEl.textContent = fmt(subtotal);
+      vatEl.textContent = fmt(vatAmount);
+      totalEl.textContent = fmt(total);
+      saveState();
+    }
+
+    // Attach live update on input
+    [line1Qty, line1Price, line2Qty, line2Price, line3Qty, line3Price].forEach(el => {
+      el.addEventListener('input', compute);
+    });
+    vatSelect.addEventListener('change', compute);
+
+    // Reset to defaults
+    function reset() {
+      line1Qty.value = '';
+      line1Price.value = '';
+      line2Qty.value = '';
+      line2Price.value = '';
+      line3Qty.value = '';
+      line3Price.value = '';
+      vatSelect.value = '24';
+      compute();
+    }
+
+    resetBtn.addEventListener('click', reset);
+
+    // Print button
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    // Initialize
+    loadState();
+    compute();
+  </script>
+</body>
+</html>
